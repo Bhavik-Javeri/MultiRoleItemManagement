@@ -1,0 +1,44 @@
+[
+  {
+    "ContainingType": "ItemManagement.Controllers.LocationController",
+    "Method": "GetCities",
+    "RelativePath": "Location/GetCities/{stateId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "stateId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ItemManagement.Controllers.LocationController",
+    "Method": "GetCountries",
+    "RelativePath": "Location/GetCountries",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "ItemManagement.Controllers.LocationController",
+    "Method": "GetStates",
+    "RelativePath": "Location/GetStates/{countryId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "countryId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

@@ -1,0 +1,435 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_Layout";
+    var role = ViewBag.Role as string;
+
+    // Dynamic greeting
+    var hour = DateTime.Now.Hour;
+    string greeting;
+    if (hour < 12)
+    {
+        greeting = "Good Morning";
+    }
+    else if (hour < 17)
+    {
+        greeting = "Good Afternoon";
+    }
+    else
+    {
+        greeting = "Good Evening";
+    }
+}
+
+<style>
+    /* Modern Dashboard Styles */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --secondary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        --danger-gradient: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+        --info-gradient: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+    }
+
+    .dashboard-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        background-color: #fff;
+    }
+
+    .stat-card {
+        color: #fff;
+        border-radius: 1rem;
+        position: relative;
+        overflow: hidden;
+        padding: 1.5rem;
+        z-index: 1;
+    }
+
+    .welcome-banner {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .user-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .quick-action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .quick-action-item {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+        .quick-action-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+</style>
+
+@model ItemManagement.Models.ViewModels.DashboardCountsViewModel
+@if (role == "SuperAdmin")
+{
+    <div class="container-fluid">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold">@greeting, Super Admin!</h1>
+                    <p class="fs-4 mb-4">Here's what's happening across your platform today</p>
+                    <div class="d-flex align-items-center">
+                        <img src="https://ui-avatars.com/api/?name=@($"{ViewBag.FName}+{ViewBag.LName}")&background=random" class="user-avatar me-3">
+                        <div>
+                            <h5 class="mb-1">@($"{ViewBag.FName} {ViewBag.LName}")</h5>
+                            <p class="mb-0 text-white-50">Super Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card" style="background: var(--primary-gradient);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">@Model.TotalUsers</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card" style="background: var(--success-gradient);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">@Model.TotalStores</div>
+                            <div class="stat-label">Active Stores</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-store-alt"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card" style="background: var(--warning-gradient);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">@Model.TotalItems</div>
+                            <div class="stat-label">Total Items</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-box"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card" style="background: var(--danger-gradient);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">@Model.TotalOrders</div>
+                            <div class="stat-label">Total Orders</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4">Quick Actions</h5>
+                <div class="quick-action-grid">
+                    <!-- User Management -->
+                    <div class="quick-action-item" style="background: rgba(102, 126, 234, 0.1);">
+                        <div class="feature-icon bg-primary">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <h6>User Management</h6>
+                        <a href="@Url.Action("UserList", "User")" class="btn btn-sm btn-primary mt-2">Manage Users</a>
+                    </div>
+
+                    <!-- Store Management -->
+                    <div class="quick-action-item" style="background: rgba(67, 233, 123, 0.1);">
+                        <div class="feature-icon bg-success">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <h6>Store Management</h6>
+                        <a href="@Url.Action("StoreList", "User")" class="btn btn-sm btn-success mt-2">Manage Stores</a>
+                    </div>
+
+                    <!-- Category Management -->
+                    <div class="quick-action-item" style="background: rgba(250, 112, 154, 0.1);">
+                        <div class="feature-icon bg-warning">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <h6>Items</h6>
+                        <a href="@Url.Action("Index", "Item")" class="btn btn-sm btn-warning mt-2">Manage</a>
+                    </div>
+
+                    <!-- System Settings -->
+                     <div class="quick-action-item" style="background: rgba(161, 140, 209, 0.1);">
+                        <div class="feature-icon bg-info">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h6>Manage Orders</h6>
+                        <a href="@Url.Action("ListOrders", "Order")" class="btn btn-sm btn-info mt-2">Configure</a>
+                    </div>
+
+
+                    <div class="quick-action-item" style="background: rgba(161, 140, 209, 0.1);">
+                        <div class="feature-icon bg-info">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h6>Manage Report</h6>
+                        <a href="@Url.Action("Index", "Report")" class="btn btn-sm btn-info mt-2">Configure</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (role == "StoreAdmin")
+{
+    <div class="container-fluid">
+        <!-- Store Admin Welcome Banner -->
+        <div class="welcome-banner mb-4" style="background: var(--info-gradient);">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold">@greeting, Store Admin!</h1>
+
+                    @* <p class="fs-4 mb-3">Here's your store performance overview</p> *@
+                    <div class="d-flex align-items-center">
+                        <img src="https://ui-avatars.com/api/?name=@($"{ViewBag.FName}+{ViewBag.LName}")&background=random" class="user-avatar me-3">
+                        <div>
+                            <h5 class="mb-1">@($"{ViewBag.FName} {ViewBag.LName}")</h5>
+                    <p class="mb-0 text-white-50">Store Admin</p>
+                            @* <p class="mb-0 text-white-50">Manager of @ViewBag.StoreName</p> *@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stat Cards for StoreAdmin -->
+        <div class="row g-4 mb-4">
+            <div class="col-xl-4 col-md-6">
+                <div class="stat-card" style="background: var(--primary-gradient);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">@Model.TotalUsers</div>
+                            <div class="stat-label">Store Users</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="stat-card" style="background: var(--success-gradient);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">@Model.TotalItems</div>
+                            <div class="stat-label">Store Items</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-box"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-md-6">
+                <div class="stat-card" style="background: var(--danger-gradient);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="stat-number">@Model.TotalOrders</div>
+                            <div class="stat-label">Store Orders</div>
+                        </div>
+                        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4">Quick Actions</h5>
+                <div class="quick-action-grid">
+                    <!-- Menu Management -->
+                    <div class="quick-action-item" style="background: rgba(102, 126, 234, 0.1);">
+                        <div class="feature-icon bg-primary">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h6>Menu Management</h6>
+                        <a href="@Url.Action("Index", "Item")" class="btn btn-sm btn-primary mt-2">Manage Items</a>
+                    </div>
+
+                    <!-- Order Management -->
+                    <div class="quick-action-item" style="background: rgba(161, 140, 209, 0.1);">
+                        <div class="feature-icon bg-info">
+                            <i class="fas fa-store-alt"></i>
+                        </div>
+                        <h6>Manage Users</h6>
+                        <a href="@Url.Action("UserList", "User")" class="btn btn-sm btn-info mt-2">Configure</a>
+                    </div>
+                    <div class="quick-action-item" style="background: rgba(67, 233, 123, 0.1);">
+                        <div class="feature-icon bg-success">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h6>Order Management</h6>
+                        <a href="@Url.Action("ListOrders", "Order")" class="btn btn-sm btn-success mt-2">View Orders</a>
+                    </div>
+
+                    <!-- Reports -->
+                    <div class="quick-action-item" style="background: rgba(250, 112, 154, 0.1);">
+                        <div class="feature-icon bg-warning">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h6>Sales Reports</h6>
+                        <a href="@Url.Action("Index", "Report")" class="btn btn-sm btn-warning mt-2">Generate</a>
+                    </div>
+
+            
+
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (role == "User")
+{
+    <div class="container-fluid">
+        <!-- User Welcome Banner -->
+        <div class="welcome-banner mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold">@greeting, @(User.Identity?.Name ?? "Valued Customer")!</h1>
+                    <div class="d-flex align-items-center">
+                        @* <img src="https://ui-avatars.com/api/?name=@User.Identity?.Name&background=random" class="user-avatar me-3"> *@
+                        <div>
+                            <h5 class="mb-1">@User.Identity?.Name</h5>
+                            @if (ViewBag.LoyaltyPoints != null)
+                            {
+                                <p class="mb-0 text-white-50">@ViewBag.LoyaltyPoints Loyalty Points</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-body">
+                <h5 class="card-title fw-bold mb-4">Quick Actions</h5>
+                <div class="quick-action-grid">
+                    <!-- Order Food -->
+                    <div class="quick-action-item" style="background: rgba(102, 126, 234, 0.1);">
+                        <div class="feature-icon bg-primary">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h6>Order Food</h6>
+                        <a href="@Url.Action("GetStoreItems", "Item")" class="btn btn-sm btn-primary mt-2">Browse Stores</a>
+                    </div>
+
+                    <!-- View Cart -->
+                    <div class="quick-action-item" style="background: rgba(67, 233, 123, 0.1);">
+                        <div class="feature-icon bg-success">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h6>Your Cart</h6>
+                        <a href="@Url.Action("CartItems", "Cart")" class="btn btn-sm btn-success mt-2">View Cart</a>
+                    </div>
+
+                    <!-- Order History -->
+                    <div class="quick-action-item" style="background: rgba(250, 112, 154, 0.1);">
+                        <div class="feature-icon bg-warning">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <h6>Order History</h6>
+                        <a href="@Url.Action("MyOrders", "Order")" class="btn btn-sm btn-warning mt-2">View Orders</a>
+                    </div>
+
+                    @* <!-- Favorites -->
+                    <div class="quick-action-item" style="background: rgba(161, 140, 209, 0.1);">
+                        <div class="feature-icon bg-info">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h6>Favorites</h6>
+                        <a href="@Url.Action("Favorites", "User")" class="btn btn-sm btn-info mt-2">View Favorites</a>
+                    </div> *@
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Items (if available) -->
+        @if (ViewBag.RecommendedItems != null && ViewBag.RecommendedItems.Count > 0)
+        {
+            <div class="card dashboard-card">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">Recommended For You</h5>
+                    <div class="row">
+                        @foreach (var item in ViewBag.RecommendedItems)
+                        {
+                            <div class="col-md-3 mb-4">
+                                <div class="card h-100 border-0">
+                                    <img src="@item.ImageUrl" class="card-img-top" style="height: 150px; object-fit: cover;">
+                                    <div class="card-body">
+                                        <h6>@item.Name</h6>
+                                        <p class="text-muted small">@item.Description</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold">₹@item.Price</span>
+                                            <button class="btn btn-sm btn-outline-primary">Add to Cart</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center py-5">
+                <h3 class="display-6">Welcome to Your Dashboard</h3>
+                <p class="lead text-muted">No specific actions are available for your current role.</p>
+                <p>If you believe this is an error, please contact support.</p>
+            </div>
+        </div>
+    </div>
+}

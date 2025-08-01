@@ -1,0 +1,132 @@
+@model ItemManagement.Models.ViewModels.UserEditViewModel
+@{
+    ViewData["Title"] = null;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid p-0 m-0">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-3 rounded-top-lg">
+                    <h3 class="my-0">Create User</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="CreateUser" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div class="row mb-3">
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <div class="col-md-12" id="storeDropdownContainer">
+                                    <label asp-for="StoreId" class="form-label">Store</label>
+                                    <select asp-for="StoreId" class="form-select" asp-items="Model.AvailableStores" id="storeSelect">
+                                        <option value="">Select Store</option>
+                                    </select>
+                                    <span asp-validation-for="StoreId" class="text-danger"></span>
+                                </div>
+                            }
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="FName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input asp-for="FName" class="form-control" />
+                                <span asp-validation-for="FName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="LName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input asp-for="LName" class="form-control" />
+                                <span asp-validation-for="LName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input asp-for="Email" class="form-control" type="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MobileNumber" class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                                    <input asp-for="MobileNumber" class="form-control" type="tel" pattern="[0-9]{10}" title="Mobile Number must be exactly 10 digits" oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);" />
+                                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <div class="col-md-6">
+                                    <label asp-for="Role" class="form-label">Role <span class="text-danger">*</span></label>
+                                    <select asp-for="Role" class="form-select" asp-items="Model.AvailableRoles" id="roleSelect">
+                                        <option value="">Select Role</option>
+                                    </select>
+                                    <span asp-validation-for="Role" class="text-danger"></span>
+                                </div>
+                            }
+                            else
+                            {
+                                <input type="hidden" asp-for="Role" value="User" />
+                            }
+                        </div>
+                        <div class="row mb-3">
+                            @* <div class="col-md-6">
+                                <label asp-for="NewProfileImage" class="form-label">Profile Image</label>
+                                <input asp-for="NewProfileImage" class="form-control" type="file" accept="image/*" />
+                                <span asp-validation-for="NewProfileImage" class="text-danger"></span>
+                            </div> *@
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="form-check mt-4">
+                                    <input asp-for="IsActive" class="form-check-input" />
+                                    <label asp-for="IsActive" class="form-check-label">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Create</button>
+                            <a asp-action="UserList" class="btn btn-secondary btn-lg">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Function to toggle store dropdown visibility
+            function toggleStoreDropdown() {
+                var selectedRole = $('#roleSelect').val();
+                var storeContainer = $('#storeDropdownContainer');
+                var storeSelect = $('#storeSelect');
+                
+                if (selectedRole === 'SuperAdmin') {
+                    storeContainer.hide();
+                    storeSelect.val(''); // Clear the store selection
+                } else {
+                    storeContainer.show();
+                }
+            }
+            
+            // Initial call to set the correct state
+            toggleStoreDropdown();
+            
+            // Listen for changes on the role select
+            $('#roleSelect').on('change', function() {
+                toggleStoreDropdown();
+            });
+
+            // Profile image validation
+            $("input[name='NewProfileImage']").on('change', function() {
+                var file = this.files[0];
+                if (file && !file.type.startsWith('image/')) {
+                    alert('Please select an image file for the profile picture.');
+                    this.value = '';
+                }
+            });
+        });
+    </script>
+} 

@@ -1,0 +1,74 @@
+﻿@using ItemManagement.Models.ViewModels
+@model ItemManagement.Models.ViewModels.OrderViewModel
+
+<div class="container-fluid">
+    <!-- Row for basic order info -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h6 class="fw-bold text-primary">Order Information</h6>
+            <ul class="list-unstyled mb-0">
+                <li><span class="text-muted">Order ID:</span> <strong class="text-dark">#@Model.Id.ToString().Substring(0, 8)</strong></li>
+                <li><span class="text-muted">Date:</span> <strong class="text-dark">@Model.OrderDate.ToString("MMM dd, yyyy hh:mm tt")</strong></li>
+                <li>
+                    <span class="text-muted">Status:</span>
+                    <span class="badge rounded-pill bg-@(Model.Status switch { OrderStatus.Approved => "primary", OrderStatus.Rejected => "danger", OrderStatus.Pending => "warning", _ => "secondary" })">
+                        @Model.Status.ToString()
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h6 class="fw-bold text-primary">Customer &amp; Delivery</h6>
+            <ul class="list-unstyled mb-0">
+                <li><span class="text-muted">Customer:</span> <strong class="text-dark">@Model.UserName</strong></li>
+                <li><span class="text-muted">Address:</span> <strong class="text-dark">@Model.Address</strong></li>
+                <li><span class="text-muted">Pincode:</span> <strong class="text-dark">@Model.Pincode</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Row for order items table -->
+    <div class="row">
+        <div class="col-12">
+            <h6 class="fw-bold text-primary mt-3 mb-2">Order Items</h6>
+            <div class="table-responsive border rounded-3">
+                <table class="table table-striped table-sm align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Item Name</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-end">Unit Price</th>
+                            <th class="text-end pe-3">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="ps-3">@item.ItemName</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end">@item.Price.ToString("N2")</td>
+                                    <td class="text-end pe-3 fw-bold">@((item.Price * item.Quantity).ToString("N2"))</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted p-3">No item details available.</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold">Total Amount:</td>
+                            <td class="text-end pe-3 fw-bolder fs-6 text-success">₹@Model.TotalAmount.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

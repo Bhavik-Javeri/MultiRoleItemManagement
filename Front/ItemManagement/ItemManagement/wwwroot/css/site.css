@@ -1,0 +1,879 @@
+html {
+    font-size: 16px; /* Consistent font size */
+    position: relative;
+    min-height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    margin: 0; /* Remove default body margin */
+    padding: 0; /* Remove default body padding */
+    overflow-x: hidden; /* Prevent horizontal scrollbar */
+    font-family: 'Poppins', sans-serif; /* Keep consistent font */
+    background-color: #f5f7fb; /* Keep consistent background */
+    color: var(--text-dark); /* Keep consistent text color */
+    line-height: 1.6; /* Keep consistent line height */
+}
+
+/* Base styles for interactive elements */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Define CSS Variables */
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+    --header-height: 60px;
+    --transition-speed: 0.3s;
+    --text-dark: #2c3e50;
+    --text-light: #7f8c8d;
+    --sidebar-bg: linear-gradient(135deg, #1e293b, #0f172a);
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Wrapper setup */
+#wrapper {
+    display: flex; /* Use flexbox for main layout */
+    min-height: 100vh;
+    width: 100%; /* Ensure wrapper takes full width */
+    position: relative; /* Keep as relative */
+    padding: 0; /* No padding on wrapper itself */
+    margin: 0; /* No margin on wrapper itself */
+    overflow: hidden; /* Prevent content overflow issues */
+}
+
+/* Sidebar Styling - Always fixed and visible */
+#sidebar-wrapper {
+    width: var(--sidebar-width); /* Use the CSS variable for consistency */
+    flex-shrink: 0; /* Prevent sidebar from shrinking */
+    background: var(--sidebar-bg);
+    color: white;
+    transition: var(--transition);
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    position: fixed; /* Keep fixed to the viewport */
+    height: 100vh; /* Make it full height */
+    left: 0; /* Always at the left edge */
+    top: 0; /* Always at the top edge */
+    z-index: 1000; /* Ensure it's on top of other content */
+    overflow-y: auto; /* Allow vertical scrolling if content is long */
+    margin: 0; /* No margin on sidebar */
+    padding: 0; /* No padding on sidebar itself */
+}
+
+/* Main Content Area - Starts immediately after the sidebar with no padding/margin */
+#page-content-wrapper {
+    /* Calculates remaining width after sidebar */
+    width: calc(100% - var(--sidebar-width));
+    /* Pushes content to the right of the sidebar */
+    margin-left: var(--sidebar-width);
+    padding: 0; /* REMOVED INITIAL PADDING FROM HERE */
+    min-height: 100vh; /* Ensure it fills viewport height */
+    background-color: #f5f7fb; /* Match body background */
+    transition: var(--transition); /* Smooth transitions */
+    overflow-y: auto; /* Allow vertical scrolling */
+    flex-grow: 1; /* Allow it to grow and take available space */
+}
+
+/* General Layout Elements for Page Content - ADJUSTED PADDING */
+/* container-fluid will now provide padding *inside* the main content. */
+/* The .page-header and main tags will be the first children of page-content-wrapper */
+.container-fluid {
+    /* We are removing the redundant container-fluid from _Layout,
+       so this rule will apply to the container-fluid inside your specific views like UserList.cshtml
+       This will now provide the padding for content within the full width of page-content-wrapper. */
+    padding: 2px; /* Adjusted padding to 2px as requested */
+    width: 100%; /* Ensure it always takes full width within its parent */
+}
+
+main {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2px; /* Adjusted padding to 2px as requested for main content */
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2px; /* Adjusted margin-bottom to 2px as requested */
+}
+
+/* Page Header Adjustments */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px; /* Adjusted margin-bottom to 2px */
+    padding: 2px; /* Adjusted padding to 2px (now top, right, bottom, left) */
+    border-bottom: none; /* Ensure no horizontal line */
+}
+
+    .page-header h2 {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+.breadcrumb {
+    background: transparent;
+    padding: 0; /* No padding on breadcrumb container itself */
+    margin: 0; /* No margin on breadcrumb container itself */
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item {
+    padding: 0; /* No padding on individual breadcrumb items */
+    margin: 0 2px; /* Small horizontal margin between items, 2px as requested */
+}
+
+    .breadcrumb-item a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+/* Sidebar Navigation */
+.sidebar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .sidebar-brand span {
+        background: linear-gradient(to right, #fff, #e0e0e0);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+.sidebar-nav {
+    list-style: none;
+    padding: 1.5rem 0;
+    margin: 0;
+}
+
+    .sidebar-nav li {
+        margin: 0.3rem 1rem;
+        position: relative;
+    }
+
+        .sidebar-nav li a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.2rem;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: var(--transition);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+            .sidebar-nav li a:hover,
+            .sidebar-nav li.active a {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: white;
+                transform: translateX(5px);
+            }
+
+        .sidebar-nav li.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 60%;
+            width: 4px;
+            background: var(--primary-color);
+            border-radius: 0 4px 4px 0;
+        }
+
+    .sidebar-nav i {
+        width: 24px;
+        margin-right: 12px;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+/* Footer Styling */
+.footer {
+    background: transparent !important;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    border-top: 1px solid #dee2e6;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #888;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.footer .container {
+    padding: 0;
+    margin: 0 auto;
+    text-align: left;
+    background: transparent !important;
+}
+
+/* Toggle Button (you might want to set display: none; here if you don't want a toggle) */
+#menu-toggle {
+    cursor: pointer;
+    color: white;
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    transition: var(--transition);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* display: none; */ /* Uncomment this line if you want to completely hide the toggle button */
+}
+
+    #menu-toggle:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+    }
+
+/* General Button Styles */
+.btn-link {
+    color: white;
+    width: 100%;
+    text-align: left;
+    padding: 0.8rem 1.2rem;
+    border: none;
+    background: none;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+    .btn-link:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        transform: translateX(5px);
+    }
+
+    .btn-link i {
+        width: 24px;
+        margin-right: 12px;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+/* Specific component styling */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px 12px 0 0;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Tables */
+.table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    margin-bottom: 1rem;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table thead th {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    border-top: 1px solid #dee2e6;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #dee2e6;
+}
+
+.table-dark {
+    background-color: #343a40;
+}
+
+.table-dark th {
+    background-color: #343a40 !important;
+    color: #fff !important;
+    border-color: #454d55;
+}
+
+.table-dark td {
+    border-color: #454d55;
+}
+
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(74, 107, 255, 0.3);
+    }
+
+.btn-success {
+    background-color: var(--success-color);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+}
+
+.btn-group .btn {
+    margin-right: 5px;
+}
+
+/* Badges */
+.badge {
+    padding: 0.5em 0.75em;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+/* Forms */
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    border: 1px solid #e0e0e0;
+    transition: var(--transition);
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(74, 107, 255, 0.15);
+    }
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* DataTables */
+.dataTables_wrapper {
+    padding: 0;
+}
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_processing,
+    .dataTables_wrapper .dataTables_paginate {
+        color: var(--text-dark);
+        margin: 1rem 0;
+    }
+
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 8px;
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #e0e0e0;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            border-radius: 8px;
+            border: none !important;
+            transition: var(--transition);
+        }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+                background: var(--primary-color) !important;
+                color: white !important;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                background: var(--primary-color) !important;
+                color: white !important;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+/* Scrollbar */
+#sidebar-wrapper::-webkit-scrollbar {
+    width: 6px;
+}
+
+#sidebar-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#sidebar-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+}
+
+    #sidebar-wrapper::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+main {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Utility Classes */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.rounded-lg {
+    border-radius: 12px !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.hover-scale {
+    transition: var(--transition);
+}
+
+    .hover-scale:hover {
+        transform: scale(1.02);
+    }
+
+/* Wrapper */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    min-width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
+    background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+    color: #fff;
+    transition: all var(--transition-speed);
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.active {
+    min-width: var(--sidebar-collapsed-width);
+    max-width: var(--sidebar-collapsed-width);
+    text-align: center;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.sidebar .nav-link {
+    padding: 15px 20px;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    transition: all var(--transition-speed);
+    text-decoration: none;
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar.active .nav-link span {
+    display: none;
+}
+
+.sidebar.active .nav-link i {
+    margin-right: 0;
+    font-size: 1.2rem;
+}
+
+/* Content */
+#content {
+    width: calc(100% - var(--sidebar-width));
+    min-height: 100vh;
+    margin-left: var(--sidebar-width);
+    transition: all var(--transition-speed);
+    background-color: #f5f7fb;
+}
+
+.sidebar.active + #content {
+    width: calc(100% - var(--sidebar-collapsed-width));
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Page Header */
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1.5rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: transform var(--transition-speed);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Tables */
+.table {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Forms */
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    transition: all var(--transition-speed);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: darken(var(--primary-color), 10%);
+    border-color: darken(var(--primary-color), 10%);
+}
+
+/* Footer */
+.footer {
+    background: transparent !important;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    border-top: 1px solid #dee2e6;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #888;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.footer .container {
+    padding: 0;
+    margin: 0 auto;
+    text-align: left;
+    background: transparent !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+    
+    .sidebar.active {
+        margin-left: 0;
+    }
+    
+    #content {
+        width: 100%;
+        margin-left: 0;
+    }
+    
+    #content.active {
+        margin-left: var(--sidebar-width);
+    }
+    
+    .sidebar.active + #content {
+        margin-left: 0;
+    }
+}
+
+/* DataTables Customization */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 0.375rem 0.75rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 5px;
+    margin: 0 2px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white !important;
+}
+
+/* Alerts */
+.alert {
+    border: none;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Utilities */
+.shadow-sm {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.shadow-md {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Animations */
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter-active {
+    opacity: 1;
+    transition: opacity var(--transition-speed);
+}
+
+.fade-exit {
+    opacity: 1;
+}
+
+.fade-exit-active {
+    opacity: 0;
+    transition: opacity var(--transition-speed);
+}
+
+/* Table Card */
+.card .table {
+    margin-bottom: 0;
+}
+
+.card .table thead th {
+    border-top: none;
+}
+
+/* Table Header Colors */
+.table-primary thead th {
+    background-color: #cfe2ff !important;
+    color: #084298 !important;
+}
+
+.table-secondary thead th {
+    background-color: #e2e3e5 !important;
+    color: #41464b !important;
+}
+
+.table-success thead th {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
+
+.table-danger thead th {
+    background-color: #f8d7da !important;
+    color: #842029 !important;
+}
+
+.table-warning thead th {
+    background-color: #fff3cd !important;
+    color: #664d03 !important;
+}
+
+.table-info thead th {
+    background-color: #cff4fc !important;
+    color: #055160 !important;
+}
+
+.table-light thead th {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+}
+
+.table-dark thead th {
+    background-color: #212529 !important;
+    color: #fff !important;
+}

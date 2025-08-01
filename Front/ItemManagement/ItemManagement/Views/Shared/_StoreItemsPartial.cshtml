@@ -1,0 +1,75 @@
+﻿@model IEnumerable<ItemManagement.Models.ViewModels.ItemViewModel>
+@* @using ItemManagement.Models.ViewModel *@
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.categoryType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                Image
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @item.categoryType.ToString()
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl" alt="@item.Name" class="img-thumbnail" style="max-width: 50px;" />
+                    }
+                </td>
+                <td>
+                    @using (Html.BeginForm("AddToCart", "Cart", FormMethod.Post))
+                    {
+                        @Html.Hidden("id", item.Id)
+                        @Html.Hidden("price", item.Price)
+                        <input type="number" name="quantity" min="1" value="1" max="@item.Quantity" style="width:60px;" class="quantity-input" data-available="@item.Quantity" />
+                        <button type="submit" class="btn btn-primary">Add to Cart</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@using (Html.BeginForm("PlaceOrder", "Order", FormMethod.Post))
+{
+    <!-- Hidden input to pass StoreId -->
+    @Html.Hidden("StoreId", Model.FirstOrDefault()?.StoreId) <!-- Ensure StoreId is available and valid -->
+
+    <button type="submit" class="btn btn-success">Place Order</button>
+}
+
+@section Scripts {
+<script>
+    document.querySelectorAll('.quantity-input').forEach(function(input) {
+        input.addEventListener('input', function() {
+            var max = parseInt(this.getAttribute('max'));
+            if (parseInt(this.value) > max) {
+                alert('You cannot order more than available quantity (' + max + ').');
+                this.value = max;
+            }
+        });
+    });
+</script>
+}

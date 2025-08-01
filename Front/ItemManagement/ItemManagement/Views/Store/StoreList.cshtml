@@ -1,0 +1,183 @@
+﻿@model ItemManagement.Models.ViewModels.StoreViewModel
+
+@{
+    ViewData["Title"] = null;
+    Layout = "_Layout";
+    var stores = ViewBag.Stores as List<ItemManagement.Models.ViewModels.StoreViewModel> ?? new List<ItemManagement.Models.ViewModels.StoreViewModel>();
+}
+
+<div class="container-fluid p-0 m-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary mb-0">Manage Stores</h2>
+        <a asp-controller="User" asp-action="CreateStore" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Store
+        </a>
+    </div>
+
+    @* Display success/error messages from TempData *@
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 rounded-lg p-3">
+        @if (!stores.Any())
+        {
+            <div class="alert alert-info text-center" role="alert">
+                No stores found. Click the "Create New Store" button to add a store.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover" id="storesTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.Name)</th>
+                            <th>Location</th>
+                            <th>@Html.DisplayNameFor(model => model.ContactNumber)</th>
+                            <th>@Html.DisplayNameFor(model => model.Email)</th>
+                            <th>Store Timing</th>
+                            <th>@Html.DisplayNameFor(model => model.IsActive)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in stores)
+                        {
+                            <tr>
+                                <td class="align-middle">@item.Name</td>
+                                <td class="align-middle">
+                                    @if (!string.IsNullOrEmpty(item.City) || !string.IsNullOrEmpty(item.State) || !string.IsNullOrEmpty(item.Country))
+                                    {
+                                        <span>@item.City, @item.State, @item.Country</span>
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                                <td class="align-middle">@(string.IsNullOrEmpty(item.ContactNumber) ? "N/A" : item.ContactNumber)</td>
+                                <td class="align-middle">@(string.IsNullOrEmpty(item.Email) ? "N/A" : item.Email)</td>
+                                <td class="align-middle">
+                                    @if (item.OpeningHours != default && item.ClosingHours != default)
+                                    {
+                                        <span>@item.OpeningHours.ToString(@"hh\:mm") - @item.ClosingHours.ToString(@"hh\:mm")</span>
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge @(item.IsActive ? "bg-success" : "bg-danger")">
+                                        @(item.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td class="align-middle text-nowrap">
+                                    <div class="btn-group">
+                                        <a asp-controller="User" asp-action="EditStore" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-1" title="Edit Store">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-controller="User" asp-action="StoreDetails" asp-route-id="@item.Id" class="btn btn-sm btn-info me-1" title="Store Details">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <form asp-action="DeleteStore" asp-route-id="@item.Id" method="post" style="display: inline;" class="delete-store-form">
+                                            @Html.AntiForgeryToken()
+                                            <button type="button" class="btn btn-sm btn-danger delete-store-btn" title="Delete Store"
+                                                    data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"
+                                                    data-id="@item.Id" data-name="@item.Name">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete the store "<span id="storeNameToDelete"></span>"? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            $('#storesTable').DataTable({
+                ordering: false,
+                order: [[0, 'asc']], // Sort by name by default
+                pageLength: 10,
+                language: {
+                    search: "Search stores:",
+                    lengthMenu: "Show _MENU_ stores per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ stores",
+                    infoEmpty: "No stores available",
+                    infoFiltered: "(filtered from _MAX_ total stores)",
+                    zeroRecords: "No matching stores found",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: -1 } // Disable sorting on the Actions column
+                ],
+                responsive: true,
+                dom: '<"top"<"row"<"col-12 text-start"f>>>rt<"bottom"<"row"<"col-md-6"l><"col-md-6"i><"col-md-12"p>>>',
+                initComplete: function() {
+                    $('.dataTables_filter input').addClass('form-control');
+                    $('.dataTables_length select').addClass('form-select');
+                }
+            });
+
+            var storeIdToDelete;
+            var formToSubmit;
+
+            $('#confirmDeleteModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                storeIdToDelete = button.data('id'); // Extract info from data-* attributes
+                var storeName = button.data('name');
+                formToSubmit = button.closest('form');
+
+                var modal = $(this);
+                modal.find('#storeNameToDelete').text(storeName);
+            });
+
+            $('#confirmDeleteBtn').on('click', function () {
+                formToSubmit.submit();
+            });
+        });
+    </script>
+}

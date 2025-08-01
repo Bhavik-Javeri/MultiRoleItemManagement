@@ -1,0 +1,273 @@
+﻿@model List<ItemManagement.Models.ViewModels.CartItemViewModel>
+
+@{
+    ViewData["Title"] = "Shopping Cart";
+    Layout = "_Layout";
+}
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    @if (TempData["Success"] != null)
+    {
+        <div class="toast show bg-success text-white" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong class="me-auto">Success</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                @TempData["Success"]
+            </div>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="toast show bg-danger text-white" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-danger text-white">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong class="me-auto">Error</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                @TempData["Error"]
+            </div>
+        </div>
+    }
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Item Cart</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model == null || !Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">Your cart is empty</h4>
+                            <p class="text-muted">Add some items to your cart to get started.</p>
+                            <a href="@Url.Action("Index", "Item")" class="btn btn-primary">
+                                <i class="fas fa-shopping-bag me-1"></i>Continue Order with more items...
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="bg-light rounded p-2" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-box text-muted"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="mb-0">@item.ItemName</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>₹@item.Price.ToString("N2")</td>
+                                            <td>
+                                                <div class="d-flex align-items-center" style="gap: 4px;">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm quantity-decrement" data-itemid="@item.ItemId">-</button>
+                                                    <input type="text" readonly name="quantity" min="1" value="@item.Quantity" class="form-control form-control-sm quantity-input" style="width:60px; text-align:center;" data-itemid="@item.ItemId" />
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm quantity-increment" data-itemid="@item.ItemId">+</button>
+                                                </div>
+                                            </td>
+                                            <td class="fw-bold total-price" data-itemid="@item.ItemId">₹@((item.Price * item.Quantity).ToString("N2"))</td>
+                                            <td>
+                                                <form asp-action="RemoveFromCart" method="post" style="display: inline;">
+                                                    <input type="hidden" name="itemId" value="@item.ItemId" />
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                            onclick="return confirm('Are you sure you want to remove this item?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Items Total:</span>
+                            <span>₹@ViewBag.CartTotal.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Delivery Fee:</span>
+                            <span>₹0.00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total Amount:</span>
+                            <span class="text-success">₹@ViewBag.CartTotal.ToString("N2")</span>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="@Url.Action("PlaceOrderForm", "Order")" class="btn btn-success w-100 btn-lg">
+                                <i class="fas fa-check-circle me-1"></i>Place Order
+                            </a>
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="@Url.Action("Index", "Item")" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-arrow-left me-1"></i>Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .badge {
+            font-weight: 500;
+        }
+
+        /* Toast Styles */
+        .toast {
+            min-width: 300px;
+        }
+
+        .toast-container {
+            z-index: 1050;
+        }
+
+        .toast .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Auto-hide toasts after 3 seconds
+        setTimeout(function() {
+            var toasts = document.querySelectorAll('.toast');
+            toasts.forEach(function(toast) {
+                var bsToast = new bootstrap.Toast(toast);
+                bsToast.hide();
+            });
+        }, 0.5);
+
+        // Initialize all toasts
+        var toasts = document.querySelectorAll('.toast');
+        toasts.forEach(function(toast) {
+            new bootstrap.Toast(toast, {
+                autohide: true,
+                delay: 2000
+            });
+        });
+
+        function updateCartQuantity(itemId, isIncrement) {
+            var url = isIncrement
+                ? '/Cart/IncrementQuantity?itemId=' + itemId
+                : '/Cart/DecrementQuantity?itemId=' + itemId;
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name=__RequestVerificationToken]')?.value || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update quantity and total price in the UI
+                    var quantityInput = document.querySelector('.quantity-input[data-itemid="' + itemId + '"]');
+                    var totalPriceCell = document.querySelector('.total-price[data-itemid="' + itemId + '"]');
+                    if (quantityInput && totalPriceCell) {
+                        quantityInput.value = data.quantity;
+                        totalPriceCell.textContent = '₹' + (data.price * data.quantity).toFixed(2);
+                    }
+                    // Optionally update order summary total
+                    if (data.cartTotal !== undefined) {
+                        document.querySelectorAll('span').forEach(function(span) {
+                            if (span.textContent.startsWith('₹')) {
+                                span.textContent = '₹' + Number(data.cartTotal).toFixed(2);
+                            }
+                        });
+                    }
+                } else {
+                    alert(data.message || 'Failed to update quantity.');
+                }
+            })
+            .catch(() => alert('Error updating cart.'));
+        }
+
+        document.querySelectorAll('.quantity-increment').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var itemId = this.getAttribute('data-itemid');
+                updateCartQuantity(itemId, true);
+            });
+        });
+        document.querySelectorAll('.quantity-decrement').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var itemId = this.getAttribute('data-itemid');
+                updateCartQuantity(itemId, false);
+            });
+        });
+    </script>
+}

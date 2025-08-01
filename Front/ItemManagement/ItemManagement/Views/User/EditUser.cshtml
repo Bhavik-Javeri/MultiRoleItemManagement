@@ -1,0 +1,154 @@
+﻿@model ItemManagement.Models.ViewModels.UserEditViewModel
+
+@{
+    ViewData["Title"] = null;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid p-0 m-0">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-warning text-white text-center py-3 rounded-top-lg">
+                    <h3 class="my-0">Edit User</h3>
+                </div>
+
+                <div class="card-body p-4">
+                    @* Success and Error Messages *@
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form asp-action="EditUser" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" name="_method" value="PUT" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        @if (User.IsInRole("SuperAdmin"))
+                        {
+                            <div class="mb-3" id="storeSelectContainer">
+                                <label asp-for="StoreId" class="form-label">Store</label>
+                                <select asp-for="StoreId" asp-items="Model.AvailableStores" class="form-select">
+                                    <option value="">-- Select Store --</option>
+                                </select>
+                                <span asp-validation-for="StoreId" class="text-danger"></span>
+                            </div>
+                        }
+
+                        @* Remove or comment out the current profile image display *@
+                        @* @if (!string.IsNullOrEmpty(Model.CurrentProfileImageUrl))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Current Profile Image</label>
+                                <div>
+                                    <img src="@Model.CurrentProfileImageUrl" alt="Current Profile Image" class="img-thumbnail" style="max-width: 200px;" />
+                                </div>
+                            </div>
+                        }
+                        <input type="hidden" asp-for="CurrentProfileImageUrl" /> *@
+
+                        @* Profile image is optional; you do not need to upload a profile image to edit a user. *@
+                        @* <div class="mb-3">
+                            <label asp-for="NewProfileImage" class="form-label">Upload New Profile Image</label>
+                            <input asp-for="NewProfileImage" type="file" class="form-control" accept="image/*" />
+                            <span asp-validation-for="NewProfileImage" class="text-danger"></span>
+                        </div> *@
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input asp-for="FName" class="form-control" />
+                                <span asp-validation-for="FName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input asp-for="LName" class="form-control" />
+                                <span asp-validation-for="LName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MobileNumber" class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                            <input asp-for="MobileNumber" class="form-control" type="tel" pattern="[0-9]{10}" title="Mobile Number must be exactly 10 digits" oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);" />
+                            <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            @if (User.IsInRole("SuperAdmin"))
+                            {
+                                <label asp-for="Role" class="form-label">Role <span class="text-danger">*</span></label>
+                                <select asp-for="Role" asp-items="Model.AvailableRoles" class="form-select" id="Role"></select>
+                                <span asp-validation-for="Role" class="text-danger"></span>
+                            }
+                            else
+                            {
+                                <input type="hidden" asp-for="Role" value="User" />
+                                <input type="hidden" asp-for="StoreId" />
+                            }
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsActive" type="checkbox" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">Active</label>
+                            <span asp-validation-for="IsActive" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-warning btn-lg">Update</button>
+                            <a asp-action="UserList" class="btn btn-secondary btn-lg">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const roleSelect = document.getElementById('Role');
+            const storeSelectContainer = document.getElementById('storeSelectContainer');
+
+            function toggleStoreSelect() {
+                const role = roleSelect.value;
+                storeSelectContainer.style.display = (role === 'StoreAdmin' || role === 'User') ? 'block' : 'none';
+            }
+
+            toggleStoreSelect(); // On page load
+            roleSelect.addEventListener('change', toggleStoreSelect); // On change
+
+            // Profile image validation
+            var profileInput = document.querySelector("input[name='NewProfileImage']");
+            if (profileInput) {
+                profileInput.addEventListener('change', function() {
+                    var file = this.files[0];
+                    if (file && !file.type.startsWith('image/')) {
+                        alert('Please select an image file for the profile picture.');
+                        this.value = '';
+                    }
+                });
+            }
+        });
+    </script>
+}

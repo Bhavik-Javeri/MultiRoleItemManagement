@@ -1,0 +1,99 @@
+﻿@model ItemManagement.Models.ViewModels.UserProfileUpdateViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-3 rounded-top-lg">
+                    <h3 class="my-0">My Profile</h3>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <form asp-action="UpdateProfile" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FName" class="form-label">First Name</label>
+                                <input asp-for="FName" class="form-control" />
+                                <span asp-validation-for="FName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LName" class="form-label">Last Name</label>
+                                <input asp-for="LName" class="form-control" />
+                                <span asp-validation-for="LName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email Address</label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MobileNumber" class="form-label">Mobile Number</label>
+                            <input asp-for="MobileNumber" class="form-control" />
+                            <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ProfileImage" class="form-label">Profile Picture</label>
+                            <input asp-for="ProfileImage" type="file" class="form-control" accept="image/*" />
+                            <span asp-validation-for="ProfileImage" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(Model.CurrentProfilePicture))
+                            {
+                                <div class="mt-2">
+                                    <img src="~/images/@Model.CurrentProfilePicture" alt="Current Profile Picture" class="img-thumbnail" style="max-width: 200px;" />
+                                </div>
+                            }
+                        </div>
+
+                        <hr class="my-4" />
+                        <h4>Change Password</h4>
+                        <p class="text-muted">Leave these fields empty if you don't want to change your password.</p>
+
+                        <div class="mb-3">
+                            <label asp-for="CurrentPassword" class="form-label">Current Password</label>
+                            <input asp-for="CurrentPassword" class="form-control" type="password" />
+                            <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NewPassword" class="form-label">New Password</label>
+                            <input asp-for="NewPassword" class="form-control" type="password" />
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConfirmNewPassword" class="form-label">Confirm New Password</label>
+                            <input asp-for="ConfirmNewPassword" class="form-control" type="password" />
+                            <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Update Profile</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

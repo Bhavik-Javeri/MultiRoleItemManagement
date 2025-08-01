@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "j7OD65iYLGk=",
+  "success": true,
+  "projectFilePath": "E:\\DemoProject\\Bhavik Javeri\\Front\\ItemManagement\\ItemManagement\\ItemManagement.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\verve\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\verve\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\verve\\.nuget\\packages\\microsoft.identitymodel.abstractions\\8.12.0\\microsoft.identitymodel.abstractions.8.12.0.nupkg.sha512",
+    "C:\\Users\\verve\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\8.12.0\\microsoft.identitymodel.jsonwebtokens.8.12.0.nupkg.sha512",
+    "C:\\Users\\verve\\.nuget\\packages\\microsoft.identitymodel.logging\\8.12.0\\microsoft.identitymodel.logging.8.12.0.nupkg.sha512",
+    "C:\\Users\\verve\\.nuget\\packages\\microsoft.identitymodel.tokens\\8.12.0\\microsoft.identitymodel.tokens.8.12.0.nupkg.sha512",
+    "C:\\Users\\verve\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\verve\\.nuget\\packages\\system.identitymodel.tokens.jwt\\8.12.0\\system.identitymodel.tokens.jwt.8.12.0.nupkg.sha512"
+  ],
+  "logs": []
+}

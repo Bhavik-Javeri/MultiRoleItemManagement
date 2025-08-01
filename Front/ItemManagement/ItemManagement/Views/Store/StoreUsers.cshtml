@@ -1,0 +1,144 @@
+﻿@model List<ItemManagement.Models.ViewModels.UserViewModel>
+@{
+    ViewData["Title"] = null;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid p-0 m-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary mb-0">Manage Users</h2>
+        <a asp-action="CreateUser" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New User
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 rounded-lg p-3">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover" id="usersTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Role</th>
+                        <th>Store</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.FName @user.LName</td>
+                            <td>@user.Email</td>
+                            <td>@user.MobileNumber</td>
+                            <td>@user.Role</td>
+                            <td>@(user.StoreName ?? "N/A")</td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-warning me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                            onclick="confirmDelete('@user.Id', '@user.FName @user.LName')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete user <span id="userNameToDelete"></span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" asp-action="DeleteUser" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="userIdToDelete" name="id" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#usersTable').DataTable({
+                order: [[0, 'asc']],
+                pageLength: 10,
+                language: {
+                    search: "Search users:",
+                    lengthMenu: "Show _MENU_ users per page",
+                    info: "Showing _START_ to _END_ of _TOTAL_ users",
+                    infoEmpty: "No users available",
+                    infoFiltered: "(filtered from _MAX_ total users)",
+                    zeroRecords: "No matching users found",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                },
+                columnDefs: [
+                    { orderable: false, targets: -1 } // Disable sorting on the Actions column
+                ],
+                responsive: true,
+                dom: '<"top"<"row"<"col-md-6"l><"col-md-6"f>>>rt<"bottom"<"row"<"col-md-6"i><"col-md-6"p>>>',
+                initComplete: function() {
+                    $('.dataTables_filter input').addClass('form-control');
+                    $('.dataTables_length select').addClass('form-select');
+                }
+            });
+        });
+
+        function confirmDelete(userId, userName) {
+            $('#userIdToDelete').val(userId);
+            $('#userNameToDelete').text(userName);
+            $('#deleteModal').modal('show');
+        }
+    </script>
+}

@@ -1,0 +1,278 @@
+﻿@using ItemManagement.Models.ViewModels
+@model ItemFilterViewModel
+@{
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-box-open me-2"></i>Manage Items
+        </h1>
+        @if (User.IsInRole("SuperAdmin") || User.IsInRole("StoreAdmin"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add New Item
+            </a>
+        }
+    </div>
+
+    <!-- Enhanced Filter Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-5 col-lg-4">
+                    <label class="form-label text-muted small">Filter by Category</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="fas fa-filter text-primary"></i>
+                        </span>
+                        <select asp-for="Category" asp-items="@Model.Categories" onchange="this.form.submit()"
+                                class="form-select">
+                            <option value="">-- All Categories --</option>
+                        </select>
+                    </div>
+                </div>
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <div class="col-md-5 col-lg-4">
+                        <label class="form-label text-muted small">Filter by Store</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-store text-primary"></i>
+                            </span>
+                            <select asp-for="SelectedStoreId" asp-items="@Model.Stores" onchange="this.form.submit()"
+                                    class="form-select">
+                                <option value="">-- All Stores --</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+            </form>
+        </div>
+    </div>
+
+    <!-- Items Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        @foreach (var item in (Model.Items ?? new List<ItemViewModel>()))
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" class="card-img-top item-image" alt="@item.Name">
+                        }
+                        else
+                        {
+                            <div class="card-img-top item-image-placeholder d-flex align-items-center justify-content-center bg-light">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-body d-flex flex-column flex-grow-1">
+                        <h5 class="card-title text-truncate mb-2" title="@item.Name">@item.Name</h5>
+                        <small class="text-muted mb-2">
+                            <i class="fas fa-store me-1"></i>@item.StoreName
+                        </small>
+                        <p class="card-text text-muted small item-description">@item.Description</p>
+                        <div class="d-flex justify-content-between align-items-center mb-2 mt-auto">
+                            <span class="h5 mb-0 text-primary">₹@item.Price.ToString("N2")</span>
+                            <span class="badge bg-info">
+                                <i class="fas fa-box me-1"></i>@item.Quantity
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge @(item.categoryType == Category.Veg ? "bg-success" : item.categoryType == Category.NonVeg ? "bg-danger" : item.categoryType == Category.Egg ? "bg-warning" : "bg-secondary")">
+                                <i class="fas fa-utensils me-1"></i>@item.categoryType
+                            </span>
+                        </div>
+                    </div>
+                    @if (User.IsInRole("SuperAdmin") || User.IsInRole("StoreAdmin"))
+                    {
+                        <div class="card-footer bg-transparent border-top-0 mt-auto">
+                            <div class="btn-group w-100">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit me-1"></i>Edit
+                                </a>
+                                <button type="button" class="btn btn-outline-danger"
+                                        onclick="confirmDelete('@item.Id', '@item.Name')">
+                                    <i class="fas fa-trash-alt me-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    else if (User.IsInRole("User"))
+                    {
+                        <div class="card-footer bg-transparent border-top-0 mt-auto">
+                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex align-items-center justify-content-between">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <input type="hidden" name="price" value="@item.Price" />
+                                <div class="input-group">
+                                    <input type="number" name="quantity" min="1" max="@item.Quantity" value="1"
+                                           class="form-control form-control-sm quantity-input"
+                                           style="width:60px;" />
+                                    <button type="submit" class="btn btn-primary btn-sm add-to-cart-btn">
+                                        <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.Items == null || !Model.Items.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Items Found</h4>
+            <p class="text-muted">Try adjusting your filters or add new items.</p>
+        </div>
+    }
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="itemName"></strong>?</p>
+                <p class="text-danger small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, name) {
+            console.log(`Attempting to delete item. ID: ${id}, Name: ${name}`);
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            document.getElementById('itemName').textContent = name;
+            const deleteForm = document.getElementById('deleteForm');
+            deleteForm.action = `/Item/DeleteItem/${id}`;
+            console.log(`Delete form action set to: ${deleteForm.action}`);
+            modal.show();
+        }
+
+        // Add hover effect to cards
+        document.querySelectorAll('.hover-shadow').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.classList.add('shadow');
+            });
+            card.addEventListener('mouseleave', function() {
+                this.classList.remove('shadow');
+            });
+        });
+
+        // Add loading animation when submitting forms
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function() {
+                const submitBtn = this.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                    }
+            });
+        });
+
+        // Auto-hide success alert after 2 seconds
+        setTimeout(function() {
+            var alert = document.querySelector('.alert-success');
+            if (alert) {
+                alert.classList.add('fade');
+                setTimeout(function() { alert.style.display = 'none'; }, 500); // fade out
+            }
+        }, 2000);
+    </script>
+}
+
+<style>
+    .item-image {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .item-image-placeholder {
+        height: 200px;
+        background-color: #f8f9fa;
+        width: 100%;
+    }
+
+    .hover-shadow {
+        transition: all 0.3s ease;
+    }
+
+        .hover-shadow:hover {
+            transform: translateY(-5px);
+        }
+
+    .card {
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 0.8em;
+    }
+
+    .btn-group .btn {
+        flex: 1;
+    }
+
+    .card-body {
+        /* Removed min-height to reduce unnecessary space */
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        line-height: 1.4;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .item-description {
+        height: 60px; /* Adjust as needed based on how many lines you want to show */
+        overflow-y: auto;
+    }
+
+    .add-to-cart-btn {
+        font-size: 0.95rem;
+        height: 32px;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .quantity-input {
+        height: 32px;
+        font-size: 0.95rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+</style>

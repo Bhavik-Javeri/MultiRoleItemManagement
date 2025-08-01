@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ItemManagement</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ItemManagement.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body class="bg-light">
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <h3>Item Management</h3>
+                <button id="sidebarCollapse" class="btn d-md-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <ul class="list-unstyled components">
+                @if (User.IsInRole("SuperAdmin"))
+                {
+                    <li class="nav-item">
+                        <a href="@Url.Action("UserList", "User")" class="nav-link">
+                            <i class="fas fa-users-cog"></i>
+                            <span>Manage Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("StoreList", "User")" class="nav-link">
+                            <i class="fas fa-store"></i>
+                            <span>Manage Stores</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Item")" class="nav-link">
+                            <i class="fas fa-boxes"></i>
+                            <span>Manage Items</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Report")" class="nav-link">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Sales Reports</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("ListOrders", "Order")" class="nav-link">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Orders</span>
+                        </a>
+                    </li>
+                }
+                else if (User.IsInRole("StoreAdmin"))
+                {
+                    <li class="nav-item">
+                        <a href="@Url.Action("UserList", "User")" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            <span>Manage Users</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Item")" class="nav-link">
+                            <i class="fas fa-box-open"></i>
+                            <span>Manage Items</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("ListOrders", "Order")" class="nav-link">
+                            <i class="fas fa-truck"></i>
+                            <span>Manage Orders</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("Index", "Report")" class="nav-link">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Sales Reports</span>
+                        </a>
+                    </li>
+                }
+                else if (User.IsInRole("User"))
+                {
+                    <li class="nav-item">
+                        <a href="@Url.Action("GetStoreItems", "Item")" class="nav-link">
+                            <i class="fas fa-utensils"></i>
+                            <span>Menu Items</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("CartItems", "Cart")" class="nav-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>My Cart</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("MyOrders", "Order")" class="nav-link">
+                            <i class="fas fa-receipt"></i>
+                            <span>My Orders</span>
+                        </a>
+                    </li>
+                }
+
+                <li class="nav-item mt-auto">
+                    <form asp-action="Logout" asp-controller="Auth" method="post" class="nav-link">
+                        <button type="submit" class="btn btn-link text-danger p-0">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content -->
+        <div id="content">
+            <div class="container-fluid">
+              @*  @if (!string.IsNullOrEmpty(ViewData["Title"] as string))
+                {
+                    <div class="row mb-4">
+                        <div class="col">
+                             <h2 class="page-title">@ViewData["Title"]</h2> 
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                } *@
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        // Toastr configuration
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+
+        // Show toastr messages if they exist in TempData
+        @if (TempData["Success"] != null)
+        {
+            <text>
+            toastr.success('@TempData["Success"]');
+            </text>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <text>
+            toastr.error('@TempData["Error"]');
+            </text>
+        }
+
+        $(function () {
+            // Toggle sidebar on mobile
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+
+            // Initialize DataTables for tables with class "datatable"
+            $('.datatable').DataTable({
+                responsive: true,
+                order: [[0, 'asc']],
+                pageLength: 10,
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search...",
+                    lengthMenu: "Show _MENU_ entries",
+                    info: "Showing _START_ to _END_ of _TOTAL_ entries",
+                    paginate: {
+                        previous: "<i class='fas fa-chevron-left'></i>",
+                        next: "<i class='fas fa-chevron-right'></i>"
+                    }
+                },
+                dom: '<"top"<"row"<"col-md-6"l><"col-md-6"f>>>rt<"bottom"<"row"<"col-md-6"i><"col-md-6"p>>>',
+                initComplete: function() {
+                    $('.dataTables_filter input').addClass('form-control');
+                    $('.dataTables_length select').addClass('form-select');
+                }
+            });
+
+            // Add active class to current nav item
+            const currentPath = window.location.pathname;
+            $('.nav-link').each(function() {
+                const href = $(this).attr('href');
+                if (href && currentPath.includes(href)) {
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

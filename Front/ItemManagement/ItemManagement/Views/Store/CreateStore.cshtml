@@ -1,0 +1,235 @@
+@model ItemManagement.Models.ViewModels.StoreViewModel
+
+@{
+    ViewData["Title"] = null;
+    Layout = "_Layout";
+}
+
+<div class="container-fluid p-0 m-0">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-3 rounded-top-lg">
+                    <h3 class="my-0">Create Store</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="CreateStore" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label">Store Name <span class="text-danger">*</span></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <input asp-for="Email" class="form-control" type="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ContactNumber" class="form-label">Contact Number <span class="text-danger">*</span></label>
+                                    <input asp-for="ContactNumber" class="form-control" type="tel" pattern="[0-9]{10}" title="Contact Number must be exactly 10 digits" oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10);" />
+                                    <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Address" class="form-label">Address <span class="text-danger">*</span></label>
+                                <input asp-for="Address" class="form-control" />
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label asp-for="CountryId" class="form-label">Country <span class="text-danger">*</span></label>
+                                <select asp-for="CountryId" class="form-select" id="countryDropdown" asp-items="@ViewBag.Countries">
+                                    <option value="">Select Country</option>
+                                </select>
+                                <span asp-validation-for="CountryId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="StateId" class="form-label">State <span class="text-danger">*</span></label>
+                                <select asp-for="StateId" class="form-select" id="stateDropdown" asp-items="@ViewBag.States">
+                                    <option value="">Select State</option>
+                                </select>
+                                <span asp-validation-for="StateId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label asp-for="CityId" class="form-label">City <span class="text-danger">*</span></label>
+                                <select asp-for="CityId" class="form-select" id="cityDropdown" asp-items="@ViewBag.Cities">
+                                    <option value="">Select City</option>
+                                </select>
+                                <span asp-validation-for="CityId" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="OpeningHours" class="form-label">Opening Hours <span class="text-danger">*</span></label>
+                                <input asp-for="OpeningHours" class="form-control" type="time" />
+                                <span asp-validation-for="OpeningHours" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ClosingHours" class="form-label">Closing Hours <span class="text-danger">*</span></label>
+                                <input asp-for="ClosingHours" class="form-control" type="time" />
+                                <span asp-validation-for="ClosingHours" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 d-flex align-items-center">
+                                <div class="form-check mt-4">
+                                    <input asp-for="IsActive" class="form-check-input" />
+                                    <label asp-for="IsActive" class="form-check-label">Active</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="ImageFile" class="form-label">Store Image</label>
+                                <input asp-for="ImageFile" class="form-control" type="file" accept="image/*" />
+                                <span asp-validation-for="ImageFile" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Create</button>
+                            <a asp-action="StoreList" class="btn btn-secondary btn-lg">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            // Load countries on page load
+            loadCountries(@(Model.CountryId), @(Model.StateId), @(Model.CityId));
+            // Country change event
+
+            // Country change handler
+            $('#countryDropdown').change(function () {
+                var countryId = $(this).val();
+                if (countryId) {
+                    loadStates(countryId, null);
+                    $('#stateDropdown').prop('disabled', false);
+                    $('#cityDropdown').prop('disabled', true);
+                    $('#cityDropdown').html('<option value="">Select City</option>');
+                } else {
+                    $('#stateDropdown').prop('disabled', true);
+                    $('#cityDropdown').prop('disabled', true);
+                    $('#stateDropdown').html('<option value="">Select State</option>');
+                    $('#cityDropdown').html('<option value="">Select City</option>');
+                }
+            });
+
+            // State change handler
+            $('#stateDropdown').change(function () {
+                var stateId = $(this).val();
+                if (stateId) {
+                    loadCities(stateId, null);
+                    $('#cityDropdown').prop('disabled', false);
+                } else {
+                    $('#cityDropdown').prop('disabled', true);
+                    $('#cityDropdown').html('<option value="">Select City</option>');
+                }
+            });
+
+            // Load countries function
+            function loadCountries(selectedCountryId, selectedStateId, selectedCityId) {
+                $.ajax({
+                    url: '@Url.Action("GetCountries", "Location")',
+                    type: 'GET',
+                    success: function (data) {
+                        var options = '<option value="">Select Country</option>';
+                        $.each(data, function (i, item) {
+                            options += '<option value="' + item.id + '"' + (item.id == selectedCountryId ? ' selected' : '') + '>' + item.name + '</option>';
+                        });
+                        $('#countryDropdown').html(options);
+
+                        if (selectedCountryId && selectedCountryId != 0) {
+                            loadStates(selectedCountryId, selectedStateId, selectedCityId);
+                            $('#stateDropdown').prop('disabled', false);
+                        } else {
+                            $('#stateDropdown').prop('disabled', true);
+                            $('#cityDropdown').prop('disabled', true);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error loading countries:", error);
+                    }
+                });
+            }
+
+            // Load states function
+            function loadStates(countryId, selectedStateId, selectedCityId) {
+                $.ajax({
+                    url: '@Url.Action("GetStates", "Location")/' + countryId,
+                    type: 'GET',
+                    success: function (data) {
+                        var options = '<option value="">Select State</option>';
+                        $.each(data, function (i, item) {
+                            options += '<option value="' + item.id + '"' + (item.id == selectedStateId ? ' selected' : '') + '>' + item.name + '</option>';
+                        });
+                        $('#stateDropdown').html(options);
+
+                        if (selectedStateId && selectedStateId != 0) {
+                            loadCities(selectedStateId, selectedCityId);
+                            $('#cityDropdown').prop('disabled', false);
+                        } else {
+                            $('#cityDropdown').prop('disabled', true);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error loading states:", error);
+                    }
+                });
+            }
+
+            // Load cities function
+            function loadCities(stateId, selectedCityId) {
+                $.ajax({
+                    url: '@Url.Action("GetCities", "Location")/' + stateId,
+                    type: 'GET',
+                    success: function (data) {
+                        var options = '<option value="">Select City</option>';
+                        $.each(data, function (i, item) {
+                            options += '<option value="' + item.id + '"' + (item.id == selectedCityId ? ' selected' : '') + '>' + item.name + '</option>';
+                        });
+                        $('#cityDropdown').html(options);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error loading cities:", error);
+                    }
+                });
+            }
+
+            // Add client-side validation for OpeningHours and ClosingHours
+            $('form').on('submit', function (e) {
+                var opening = $('input[name="OpeningHours"]').val();
+                var closing = $('input[name="ClosingHours"]').val();
+                if (opening && closing && opening === closing) {
+                    e.preventDefault();
+                    var errorMsg = 'Opening and Closing hours cannot be the same.';
+                    var errorSpan = $('<span class="text-danger"></span>').text(errorMsg);
+                    // Remove any previous error
+                    $('input[name="ClosingHours"]').next('.text-danger').remove();
+                    $('input[name="ClosingHours"]').after(errorSpan);
+                } else {
+                    // Remove error if times are different
+                    $('input[name="ClosingHours"]').next('.text-danger').remove();
+                }
+            });
+
+            // Store image validation
+            $("input[name='ImageFile']").on('change', function() {
+                var file = this.files[0];
+                if (file && !file.type.startsWith('image/')) {
+                    alert('Please select an image file for the store image.');
+                    this.value = '';
+                }
+            });
+        });
+    </script>
+} 

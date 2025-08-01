@@ -1,0 +1,199 @@
+@model IEnumerable<ItemManagement.Models.ViewModels.OrderViewModel>
+@using ItemManagement.Models.ViewModels
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<!-- This success message now works with the updated controller -->
+@if (ViewBag.OrderSuccess != null && (bool)ViewBag.OrderSuccess)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <strong>Order placed successfully!</strong> Your order is now being processed.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold mb-0">
+                <i class="fas fa-clipboard-list me-2"></i>My Orders
+            </h2>
+            <hr class="mt-2 mb-4">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="ordersTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                        <i class="fas fa-clock me-2"></i>Pending Orders
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="archive-tab" data-bs-toggle="tab" data-bs-target="#archive" type="button" role="tab">
+                        <i class="fas fa-archive me-2"></i>Order History
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="ordersTabContent">
+                <!-- Pending Orders Tab -->
+                <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                    <div class="card border-top-0 rounded-top-0">
+                        <div class="card-body p-0">
+                            @if (!Model.Any(o => o.Status == OrderStatus.Pending))
+                            {
+                                <div class="text-center py-5">
+                                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                    <h5 class="text-muted">No Pending Orders</h5>
+                                    <p class="text-muted">Place a new order to see it here.</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-4">Order ID</th>
+                                                <th>Date</th>
+                                                <th>Items</th>
+                                                <th>Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var order in Model.Where(o => o.Status == OrderStatus.Pending))
+                                            {
+                                                <!-- The data-order-id now uses the simplified 'Id' property -->
+                                                <tr class="order-row" data-order-id="@order.Id" style="cursor: pointer;">
+                                                    <td class="ps-4 fw-bold">#@order.Id.ToString().Substring(0, 8)</td>
+                                                    <td>@order.OrderDate.ToString("MMM dd, yyyy hh:mm tt")</td>
+                                                    <td>
+                                                        <span class="badge bg-light text-dark">@order.Items.Count @(order.Items.Count == 1 ? "item" : "items")</span>
+                                                    </td>
+                                                    <td class="fw-bold text-success">₹@order.TotalAmount.ToString("N2")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archive Tab -->
+                <div class="tab-pane fade" id="archive" role="tabpanel">
+                     <div class="card border-top-0 rounded-top-0">
+                        <div class="card-body p-0">
+                             @if (!Model.Any(o => o.Status != OrderStatus.Pending))
+                            {
+                                <div class="text-center py-5">
+                                     <i class="fas fa-archive fa-3x text-muted mb-3"></i>
+                                     <h5 class="text-muted">Order History is Empty</h5>
+                                     <p class="text-muted">Completed or rejected orders will appear here.</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="table-responsive">
+                                     <table class="table table-hover align-middle mb-0">
+                                         <thead class="table-light">
+                                             <tr>
+                                                 <th class="ps-4">Order ID</th>
+                                                 <th>Date</th>
+                                                 <th>Status</th>
+                                                 <th>Total</th>
+                                             </tr>
+                                         </thead>
+                                         <tbody>
+                                             @foreach (var order in Model.Where(o => o.Status != OrderStatus.Pending))
+                                             {
+                                                 <tr class="order-row" data-order-id="@order.Id" style="cursor: pointer;">
+                                                     <td class="ps-4 fw-bold">#@order.Id.ToString().Substring(0, 8)</td>
+                                                     <td>@order.OrderDate.ToString("MMM dd, yyyy hh:mm tt")</td>
+                                                     <td>
+                                                         <span class="badge rounded-pill bg-@(order.Status switch { OrderStatus.Approved => "primary", OrderStatus.Rejected => "danger", _ => "secondary" }) py-2 px-3">
+                                                             <i class="fas @(order.Status switch { OrderStatus.Approved => "fa-check-circle", OrderStatus.Rejected => "fa-times-circle", _ => "fa-info-circle" }) me-1"></i> @order.Status.ToString()
+                                                         </span>
+                                                     </td>
+                                                     <td class="fw-bold text-success">₹@order.TotalAmount.ToString("N2")</td>
+                                                 </tr>
+                                             }
+                                         </tbody>
+                                     </table>
+                                 </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal (This will be populated by a partial view from our AJAX call) -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-receipt me-2"></i>
+                    Order Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Content will be loaded here via JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+            var modalContent = $('#modalContent');
+
+            $('.order-row').click(function() {
+                const orderId = $(this).data('order-id');
+                
+                // Show a loading state in the modal
+                modalContent.html(`
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading order details...</p>
+                    </div>
+                `);
+                
+                // Show the modal
+                modal.show();
+                
+                // *** THIS IS THE FIX ***
+                // We now make a real AJAX call to our new controller action
+                $.get(`/Order/GetOrderDetails/${orderId}`)
+                    .done(function(data) {
+                        // The controller returns a partial view, which we inject into the modal.
+                        modalContent.html(data);
+                    })
+                    .fail(function() {
+                        // Show an error message if the call fails
+                        modalContent.html(`
+                            <div class="alert alert-danger text-center">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Failed to load order details. Please try again.
+                            </div>
+                        `);
+                    });
+            });
+        });
+    </script>
+}
+

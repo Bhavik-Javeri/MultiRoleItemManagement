@@ -1,0 +1,9 @@
+Admin
+Reports
+Order Purchase report
+Order ID , Item Name   Customer Name ,  Store Name , Amount ,Date , Address, Status
+
+Store Admin Reports
+
+Store wise
+Order ID , Item Name   Customer Name ,  Store Name , Amount ,Date , Address, Status

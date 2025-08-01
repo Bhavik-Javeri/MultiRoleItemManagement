@@ -1,0 +1,198 @@
+﻿@model ItemManagement.Models.ViewModels.RegisterViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - MultiRole Item Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #ff8e53;
+            --light-gray: #f8f9fc;
+        }
+
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        .registration-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto;
+        }
+
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 2rem;
+            background-color: white;
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+            .form-control:focus {
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 0.2rem rgba(255, 107, 107, 0.25);
+            }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--secondary-color);
+                border-color: var(--secondary-color);
+                transform: translateY(-2px);
+            }
+
+        .text-muted {
+            font-size: 0.85rem;
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="registration-container">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="fw-bold mb-0">
+                    <i class="fas fa-user-plus me-2"></i> Create Account
+                </h3>
+            </div>
+            <div class="card-body">
+                <form asp-action="Register" method="post" enctype="multipart/form-data" novalidate>
+                    <!-- Display model-level errors -->
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
+
+                    <!-- Display success/error messages from TempData -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FName" class="form-label fw-bold">First Name</label>
+                            <input asp-for="FName" class="form-control" placeholder="Enter first name" />
+                            <span asp-validation-for="FName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LName" class="form-label fw-bold">Last Name</label>
+                            <input asp-for="LName" class="form-control" placeholder="Enter last name" />
+                            <span asp-validation-for="LName" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                        <input asp-for="Email" class="form-control" placeholder="Enter email address" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Password field removed: registration does not require password -->
+                    @* Ensure no hidden or default password field is present *@
+                    <div class="mb-3">
+                        <label asp-for="MobileNumber" class="form-label fw-bold">Mobile Number</label>
+                        <input asp-for="MobileNumber"
+                               class="form-control"
+                               placeholder="Enter mobile number"
+                               maxlength="10"
+                               pattern="[0-9]{10}"
+                               title="Enter exactly 10 digits"
+                               inputmode="numeric" />
+                        <span asp-validation-for="MobileNumber" class="text-danger small"></span>
+                    </div>
+
+
+                    <!--<div class="mb-3">
+                        <label asp-for="Profile" class="form-label fw-bold">Profile Picture</label>
+                        <input asp-for="Profile" type="file" class="form-control" />
+                        <span asp-validation-for="Profile" class="text-danger small"></span>
+                    </div>-->
+
+                    <div class="mb-4">
+                        <label asp-for="Role" class="form-label fw-bold">Select Role</label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="User">User</option>
+                            <option value="StoreAdmin">Store Admin</option>
+                            <!-- <option value="SuperAdmin">Super Admin</option> -->
+                        </select>
+                        <span asp-validation-for="Role" class="text-danger small"></span>
+                        <small class="form-text text-muted">
+                            After registration, you will receive an email to set your password. You cannot register as Super Admin.
+                        </small>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i> Register
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Already have an account? <a href="/Auth/Login" class="text-primary fw-bold">Login here</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>
